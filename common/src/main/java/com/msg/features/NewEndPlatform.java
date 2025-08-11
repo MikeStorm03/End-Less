@@ -12,6 +12,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EndPortalFrameBlock;
@@ -43,6 +44,12 @@ public class NewEndPlatform extends Feature<NoneFeatureConfiguration> {
             }
         }
         // End Portal
+        placePortal((ServerLevel)level, pos);
+    }
+
+    public static void placePortal(ServerLevel level, BlockPos pos) {
+        BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
+        BlockPos blockPos;
         for (int i = -2; i < 3; i++) {
             for (int j = -2; j < 3; j++) {
                 blockPos = mutableBlockPos.set(pos).move(j, 0, i);

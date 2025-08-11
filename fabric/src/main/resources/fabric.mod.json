@@ -8,7 +8,7 @@
         "${mod_author}"
     ],
     "contact": {
-        "sources": ""
+        "sources": "https://github.com/MikeStorm03/End-Less"
     },
     "license": "${license}",
     "icon": "${mod_id}.png",
@@ -25,11 +25,12 @@
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
-        "minecraft": "${minecraft_version}",
-        "java": ">=${java_version}"
+        "minecraft": ">=${minecraft_version}",
+        "java": ">=${java_version}",
+        "ensity_functions": "*"
     },
     "suggests": {
-        "another-mod": "*"
+        "hideexperimentalwarning": "*"
     }
 }
   

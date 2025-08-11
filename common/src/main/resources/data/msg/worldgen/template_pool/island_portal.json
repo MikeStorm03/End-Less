@@ -1,0 +1,14 @@
+{
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "element_type": "minecraft:single_pool_element",
+                "location": "msg:island_portal",
+                "processors": "minecraft:empty",
+                "projection": "rigid"
+            },
+            "weight": 1
+        }
+    ]
+}

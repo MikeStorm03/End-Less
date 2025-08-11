@@ -40,11 +40,10 @@ public class EnderEyeItemMixin {
                 if (i > -2  && i < 2 && j > -2 && j < 2){
                     continue;
                 } else {
-                    BlockPos cornerPos = blockPos.offset(i, 0, j);
+                    BlockPos checkAtPos = blockPos.offset(i, 0, j);
 
-                    if (checkSquare(world, cornerPos)) {
-                        BlockPos centerPos = cornerPos.offset(1, 0, 1);
-                        openPortals.openEndPortal.add(centerPos);
+                    if (checkSquare(world, checkAtPos)) {
+                        openPortals.openEndPortal.add(checkAtPos.offset(0, 0, 1));
                         return;
                     }
                 }
