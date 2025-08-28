@@ -15,7 +15,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.msg.EndlessFabric"
+            "com.msg.end_less.EndlessFabric"
         ]
     },
     "mixins": [
