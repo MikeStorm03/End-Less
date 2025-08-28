@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.EndPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.feature.EndPlatformFeature;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class EndPortalBlockMixin {
      * @return A DimensionTransition instance representing the teleportation result.
      */
     @Overwrite
-    public DimensionTransition getPortalDestination(ServerLevel level, Entity entity, BlockPos pos) {
+    public TeleportTransition getPortalDestination(ServerLevel level, Entity entity, BlockPos pos) {
         ResourceKey<Level> dimension = level.dimension();
 
         if (shouldTeleportToEnd(level, entity)) {
@@ -90,7 +90,7 @@ public class EndPortalBlockMixin {
      * @param entity The entity being teleported.
      * @return A DimensionTransition to the End.
      */
-    private static DimensionTransition teleportToEnd(ServerLevel level, Entity entity) {
+    private static TeleportTransition teleportToEnd(ServerLevel level, Entity entity) {
         ServerLevel endLevel = level.getServer().getLevel(Level.END);
         if (endLevel == null) return null;
 
@@ -117,7 +117,7 @@ public class EndPortalBlockMixin {
      * @param entity The entity to teleport.
      * @return A {@link DimensionTransition} representing the teleportation action.
      */
-    private static DimensionTransition teleportFromNewEndToOverworld(ServerLevel level, Entity entity) {
+    private static TeleportTransition teleportFromNewEndToOverworld(ServerLevel level, Entity entity) {
         level = level.getServer().getLevel(Level.OVERWORLD);
         if (level == null) return null;
 
@@ -150,7 +150,7 @@ public class EndPortalBlockMixin {
      * @param entity The entity being teleported.
      * @return A DimensionTransition to the NEW_END.
      */
-    private static DimensionTransition teleportToNewEnd(ServerLevel level, Entity entity) {
+    private static TeleportTransition teleportToNewEnd(ServerLevel level, Entity entity) {
         ServerLevel newEnd = level.getServer().getLevel(EndLessCommon.NEW_END);
 
         BlockPos nearest = findClosestPortalNear(entity, EndLessSaveAndLoader.getServerState(level.getServer()).openEndPortal, 5);
@@ -204,8 +204,8 @@ public class EndPortalBlockMixin {
         List<BlockPos> candidates = new ArrayList<>(15 * 15 * 10);
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
-        int minY = Math.max(level.getMinBuildHeight() + 1, center.getY() - 5);
-        int maxY = Math.min(level.getMaxBuildHeight() - 2, center.getY() + 4);
+        int minY = center.getY() - 5;
+        int maxY = center.getY() + 4;
 
         for (int m = -7; m <= 7; m++) {
             for (int n = -7; n <= 7; n++) {
@@ -252,13 +252,13 @@ public class EndPortalBlockMixin {
      * @param entity The entity being teleported.
      * @return A DimensionTransition to the specified location.
      */
-    private static DimensionTransition transitionTo(ServerLevel level, Vec3 pos, Entity entity) {
+    private static TeleportTransition transitionTo(ServerLevel level, Vec3 pos, Entity entity) {
         return transitionTo(level, pos, entity, entity.getYRot());
     }
 
-    private static DimensionTransition transitionTo(ServerLevel level, Vec3 pos, Entity entity, float yaw) {
-        return new DimensionTransition(level, pos, entity.getDeltaMovement(), yaw, entity.getXRot(),
-                DimensionTransition.PLAY_PORTAL_SOUND.then(DimensionTransition.PLACE_PORTAL_TICKET));
+    private static TeleportTransition transitionTo(ServerLevel level, Vec3 pos, Entity entity, float yaw) {
+        return new TeleportTransition(level, pos, entity.getDeltaMovement(), yaw, entity.getXRot(),
+                TeleportTransition.PLAY_PORTAL_SOUND.then(TeleportTransition.PLACE_PORTAL_TICKET));
     }
 
     /**
@@ -295,9 +295,9 @@ public class EndPortalBlockMixin {
      * @param entity The entity being teleported.
      * @return A DimensionTransition to the fallback point.
      */
-    private static DimensionTransition toSpawnPoint(ServerLevel level, Entity entity) {
+    private static TeleportTransition toSpawnPoint(ServerLevel level, Entity entity) {
         if (entity instanceof ServerPlayer player) {
-            return player.findRespawnPositionAndUseSpawnBlock(false, DimensionTransition.DO_NOTHING);
+            return player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
         }
 
         ServerLevel overworld = level.getServer().getLevel(Level.OVERWORLD);
