@@ -204,8 +204,8 @@ public class EndPortalBlockMixin {
         List<BlockPos> candidates = new ArrayList<>(15 * 15 * 10);
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
-        int minY = Math.max(level.getMinBuildHeight() + 1, center.getY() - 5);
-        int maxY = Math.min(level.getMaxBuildHeight() - 2, center.getY() + 4);
+        int minY = center.getY() - 5;
+        int maxY = center.getY() + 4;
 
         for (int m = -7; m <= 7; m++) {
             for (int n = -7; n <= 7; n++) {
