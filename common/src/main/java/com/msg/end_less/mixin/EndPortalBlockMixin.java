@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EndPortalBlock;
+import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.feature.EndPlatformFeature;
@@ -36,42 +37,27 @@ import com.msg.end_less.features.EndLessSaveAndLoader;
 import com.msg.end_less.features.NewEndPlatform;
 
 @Mixin(EndPortalBlock.class)
-public class EndPortalBlockMixin {
+public class EndPortalBlockMixin implements Portal {
     
-    /**
-     * Determines the appropriate portal destination based on entity and level state.
-     *
-     * @param level  The current server level.
-     * @param entity The entity being teleported.
-     * @param pos    The position triggering teleport (unused).
-     * @return A DimensionTransition instance representing the teleportation result.
-     */
     @Overwrite
-    public TeleportTransition getPortalDestination(ServerLevel level, Entity entity, BlockPos pos) {
-        ResourceKey<Level> dimension = level.dimension();
+    public TeleportTransition getPortalDestination(ServerLevel serverLevel, Entity entity, BlockPos blockPos) {
+        ResourceKey<Level> dimension = serverLevel.dimension();
 
-        if (shouldTeleportToEnd(level, entity)) {
-            return teleportToEnd(level, entity);
+        if (shouldTeleportToEnd(serverLevel, entity)) {
+            return teleportToEnd(serverLevel, entity);
         }
 
         if (dimension == EndLessCommon.NEW_END) {
-            return teleportFromNewEndToOverworld(level, entity);
+            return teleportFromNewEndToOverworld(serverLevel, entity);
         }
 
         if (dimension == Level.OVERWORLD) {
-            return teleportToNewEnd(level, entity);
+            return teleportToNewEnd(serverLevel, entity);
         }
 
-        return toSpawnPoint(level, entity);
+        return toSpawnPoint(serverLevel, entity);
     }
 
-    /**
-     * Checks whether the entity should be sent to the End dimension.
-     *
-     * @param level  The current server world.
-     * @param entity The entity being teleported.
-     * @return True if the dragon havent been killed or jump in the portal at (0;0) Overworld.
-     */
     private static boolean shouldTeleportToEnd(ServerLevel level, Entity entity) {
         EndDragonFight endDragonFight = level.getServer().getLevel(Level.END).getDragonFight();
         boolean dragonDead = (endDragonFight == null || !endDragonFight.hasPreviouslyKilledDragon());
@@ -83,13 +69,6 @@ public class EndPortalBlockMixin {
         return dragonDead || inSpawnArea;
     }
 
-    /**
-     * Teleports the entity to the End and spawn platform.
-     *
-     * @param level  The current server world.
-     * @param entity The entity being teleported.
-     * @return A DimensionTransition to the End.
-     */
     private static TeleportTransition teleportToEnd(ServerLevel level, Entity entity) {
         ServerLevel endLevel = level.getServer().getLevel(Level.END);
         if (endLevel == null) return null;
@@ -105,18 +84,6 @@ public class EndPortalBlockMixin {
         return transitionTo(endLevel, pos, entity, Direction.WEST.toYRot());
     }
 
-    /**
-     * Handles teleportation from the custom End dimension back to the Overworld.
-     * <p>
-     * Attempts to locate the nearest open portal stored in persistent server state.
-     * If a portal is found, it will try to find a safe spot near it.
-     * If no safe spot is available, it picks a randomized nearby location.
-     * If no portal exists, the entity will be sent to the Overworld spawn point.
-     *
-     * @param level  The custom End dimension.
-     * @param entity The entity to teleport.
-     * @return A {@link DimensionTransition} representing the teleportation action.
-     */
     private static TeleportTransition teleportFromNewEndToOverworld(ServerLevel level, Entity entity) {
         level = level.getServer().getLevel(Level.OVERWORLD);
         if (level == null) return null;
@@ -143,13 +110,6 @@ public class EndPortalBlockMixin {
         NewEndPlatform.placePortal(level, blockPos);
     }
 
-    /**
-     * Handles teleportation from Overworld to NEW_END.
-     *
-     * @param level  The Overworld.
-     * @param entity The entity being teleported.
-     * @return A DimensionTransition to the NEW_END.
-     */
     private static TeleportTransition teleportToNewEnd(ServerLevel level, Entity entity) {
         ServerLevel newEnd = level.getServer().getLevel(EndLessCommon.NEW_END);
 
@@ -164,14 +124,6 @@ public class EndPortalBlockMixin {
         return transitionTo(newEnd, fallback.getBottomCenter(), entity);
     }
 
-    /**
-     * Finds the closest portal within a max distance.
-     *
-     * @param entity       The entity position to compare.
-     * @param portals      A list of portal positions.
-     * @param maxDistance  The max distance to consider.
-     * @return The closest portal position, or null if none is close enough.
-     */
     private static BlockPos findClosestPortalNear(Entity entity, List<BlockPos> portals, double maxDistance) {
         double maxSqr = maxDistance * maxDistance;
         double x = entity.getX(), z = entity.getZ();
@@ -187,19 +139,6 @@ public class EndPortalBlockMixin {
         return null;
     }
 
-    /**
-     * Attempts to find a safe location near a given center position to teleport an entity to.
-     * <p>
-     * The method scans a 15x15 area horizontally and a 10-block range vertically around the
-     * specified {@code center} position. Each possible location is checked randomly to
-     * improve fairness and reduce predictable patterns.
-     * <p>
-     * A location is considered safe if it passes the {@code isSafe} check (not defined here).
-     *
-     * @param level  The server level in which the search is performed.
-     * @param center The center {@link BlockPos} around which to search for a safe teleport location.
-     * @return A {@link BlockPos} representing a safe teleport location, or {@code null} if none is found.
-     */
     private static BlockPos findSafeTeleportSpot(ServerLevel level, BlockPos center) {
         List<BlockPos> candidates = new ArrayList<>(15 * 15 * 10);
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
@@ -227,15 +166,6 @@ public class EndPortalBlockMixin {
         return null;
     }
 
-    /**
-     * Generates a small random offset position near the specified center, avoiding direct center.
-     * <p>
-     * This is used as a fallback when no safe position is found via scanning.
-     * The logic prefers positions 2 blocks away in X or Z to avoid tight overlaps.
-     *
-     * @param center The central position to offset from.
-     * @return A nearby {@link BlockPos} within a small, predefined range.
-     */
     private static BlockPos randomTeleportySpot(BlockPos center){
         BlockPos.MutableBlockPos mutable = center.mutable();
         Random random = new Random();
@@ -244,14 +174,6 @@ public class EndPortalBlockMixin {
         return mutable.set(center).move(randomX, 1, randomZ);
     }
 
-    /**
-     * Creates a DimensionTransition at a given position with the entity's movement and rotation.
-     *
-     * @param level  The target level.
-     * @param pos    The position to teleport to.
-     * @param entity The entity being teleported.
-     * @return A DimensionTransition to the specified location.
-     */
     private static TeleportTransition transitionTo(ServerLevel level, Vec3 pos, Entity entity) {
         return transitionTo(level, pos, entity, entity.getYRot());
     }
@@ -261,21 +183,6 @@ public class EndPortalBlockMixin {
                 TeleportTransition.PLAY_PORTAL_SOUND.then(TeleportTransition.PLACE_PORTAL_TICKET));
     }
 
-    /**
-     * Determines whether a given block position is safe for teleportation.
-     * <p>
-     * A position is considered safe if:
-     * <ul>
-     *   <li>The block below has a full collision shape (i.e., a solid block to stand on).</li>
-     *   <li>The block above does not have a full collision shape (i.e., won't suffocate the entity).</li>
-     *   <li>Neither the current block nor the block above is an {@link net.minecraft.world.level.block.Blocks#END_PORTAL} block.</li>
-     * </ul>
-     * This method is useful for checking whether an entity can safely teleport to or spawn at a given location.
-     *
-     * @param level     The {@link ServerLevel} where the position is being checked.
-     * @param blockPos  The {@link BlockPos} to evaluate for safety.
-     * @return {@code true} if the position is safe, {@code false} otherwise.
-     */
     private static boolean isSafe(ServerLevel level, BlockPos blockPos) {
         BlockState below = level.getBlockState(blockPos.below());
         BlockState atBlock = level.getBlockState(blockPos);
@@ -288,13 +195,6 @@ public class EndPortalBlockMixin {
         return solidBase && passableTop;
     }
 
-    /**
-     * Returns a fallback spawn location transition when no other teleport options apply.
-     *
-     * @param level  The current server level.
-     * @param entity The entity being teleported.
-     * @return A DimensionTransition to the fallback point.
-     */
     private static TeleportTransition toSpawnPoint(ServerLevel level, Entity entity) {
         if (entity instanceof ServerPlayer player) {
             return player.findRespawnPositionAndUseSpawnBlock(false, TeleportTransition.DO_NOTHING);
