@@ -4,11 +4,13 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 base {
-    archivesName = "${mod_name}-forge-1.21.3"
+    archivesName = "${mod_name}-forge-${minecraft_version}"
 }
 
 dependencies {
     implementation "maven.modrinth:en-sityfuntion:0.1.2+1.21-forge"
+    implementation "maven.modrinth:hide-experimental-warning:1.21.5-1.2-fabric+forge+neo"
+    implementation "maven.modrinth:collective:1.21.5-8.3-fabric+forge+neo"
 }
 
 mixin {
@@ -23,7 +25,7 @@ jar {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.21.3'
+    mappings channel: 'official', version: minecraft_version
 
     copyIdeResources = true //Calls processResources when in dev
 
@@ -78,7 +80,7 @@ minecraft {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
-    minecraft "net.minecraftforge:forge:1.21.3-${forge_version}"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     annotationProcessor "org.spongepowered:mixin:0.8.7-SNAPSHOT:processor"
     implementation "net.fabricmc:sponge-mixin:0.15.0+mixin.0.8.7"

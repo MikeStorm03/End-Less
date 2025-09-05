@@ -5,6 +5,9 @@ plugins {
 
 dependencies {
     implementation "maven.modrinth:en-sityfuntion:0.1.2+1.21-neoforge"
+    implementation "maven.modrinth:sodium:mc1.21.5-0.6.13-neoforge"
+    implementation "maven.modrinth:hide-experimental-warning:1.21.5-1.2-fabric+forge+neo"
+    implementation "maven.modrinth:collective:1.21.5-8.3-fabric+forge+neo"
 }
 
 neoForge {

@@ -37,13 +37,13 @@ public class EnderEyeItemMixin {
         EndLessSaveAndLoader openPortals = EndLessSaveAndLoader.getServerState(world.getServer());
         for (int i = -2; i < 3; i++) {
             for (int j = -2; j < 3; j++) {
-                if (i > -2  && i < 2 && j > -2 && j < 2){
+                if (i > -2  && i < 2 && j > -2 && j < 2 || i == j && Math.abs(i) == 2){
                     continue;
                 } else {
                     BlockPos checkAtPos = blockPos.offset(i, 0, j);
 
                     if (checkSquare(world, checkAtPos)) {
-                        openPortals.openEndPortal.add(checkAtPos.offset(0, 0, 1));
+                        openPortals.openEndPortal.add(checkAtPos);
                         return;
                     }
                 }
@@ -52,9 +52,9 @@ public class EnderEyeItemMixin {
     }
 
     private static boolean checkSquare(Level world, BlockPos blockPos){
-        for (int i = -1; i < 1; i++){
-            for (int j = -1; j < 1; j++){
-                if (!world.getBlockState(blockPos).is(Blocks.END_PORTAL)){
+        for (int i = -1; i < 2; i++){
+            for (int j = -1; j < 2; j++){
+                if (!world.getBlockState(blockPos.offset(i, 0, j)).is(Blocks.END_PORTAL)){
                     return false;
                 }
             }

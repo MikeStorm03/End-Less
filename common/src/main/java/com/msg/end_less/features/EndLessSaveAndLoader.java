@@ -11,65 +11,46 @@ package com.msg.end_less.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.msg.end_less.EndLessConstants;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 public class EndLessSaveAndLoader extends SavedData {
 
     public List<BlockPos> openEndPortal = new ArrayList<>();
 
-    @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        ListTag listTag = new ListTag();
-        for (BlockPos pos : openEndPortal) {
-            CompoundTag posTag = new CompoundTag();
-            posTag.putInt("x", pos.getX());
-            posTag.putInt("y", pos.getY());
-            posTag.putInt("z", pos.getZ());
-            listTag.add(posTag);
-        }
-        tag.put("openEndPortal", listTag);
-        return tag;
+    public EndLessSaveAndLoader(List<BlockPos> openEndPortal) {
+        this.openEndPortal = openEndPortal;
     }
 
-    public static EndLessSaveAndLoader createFromNbt(CompoundTag tag, HolderLookup.Provider registries) {
-        EndLessSaveAndLoader state = new EndLessSaveAndLoader();
+    public static final Codec<EndLessSaveAndLoader> CODEC = RecordCodecBuilder.create(
+        instance -> instance.group(
+            BlockPos.CODEC.listOf().fieldOf("openEndPortal").forGetter(state -> state.openEndPortal)
+        ).apply(instance, EndLessSaveAndLoader::new)
+    );
 
-        ListTag listTag = tag.getList("openEndPortal", Tag.TAG_COMPOUND);
-        for (Tag t : listTag) {
-            CompoundTag posTag = (CompoundTag) t;
-            int x = posTag.getInt("x");
-            int y = posTag.getInt("y");
-            int z = posTag.getInt("z");
-            state.openEndPortal.add(new BlockPos(x, y, z));
-        }
 
+    public static EndLessSaveAndLoader createNew() {
+        EndLessSaveAndLoader state = new EndLessSaveAndLoader(new ArrayList<>());
         return state;
     }
 
-    public static EndLessSaveAndLoader createNew() {
-        return new EndLessSaveAndLoader();
-    }
-
-    private static final SavedData.Factory<EndLessSaveAndLoader> type = new SavedData.Factory<>(
+    private static final SavedDataType<EndLessSaveAndLoader> type = new SavedDataType<>(
+        EndLessConstants.ID,
         EndLessSaveAndLoader::createNew,
-        EndLessSaveAndLoader::createFromNbt,
+        CODEC,
         null
     );
 
     public static EndLessSaveAndLoader getServerState(MinecraftServer server) {
-        ServerLevel level = server.getLevel(Level.OVERWORLD);
-        assert level != null;
-        EndLessSaveAndLoader state = level.getDataStorage().computeIfAbsent(type, EndLessConstants.ID);
+        EndLessSaveAndLoader state = server.getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(type);
+        state.openEndPortal = new ArrayList<>(state.openEndPortal);
         state.setDirty();
         return state;
     }
