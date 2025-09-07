@@ -54,7 +54,7 @@ public class EnderEyeItemMixin {
     private static boolean checkSquare(Level world, BlockPos blockPos){
         for (int i = -1; i < 2; i++){
             for (int j = -1; j < 2; j++){
-                if (!world.getBlockState(blockPos).is(Blocks.END_PORTAL)){
+                if (!world.getBlockState(blockPos.offset(i, 0, j)).is(Blocks.END_PORTAL)){
                     return false;
                 }
             }
