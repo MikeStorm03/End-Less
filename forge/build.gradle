@@ -9,6 +9,8 @@ base {
 
 dependencies {
     implementation "maven.modrinth:en-sityfuntion:0.1.2+1.21-forge"
+    implementation "maven.modrinth:hide-experimental-warning:1.21.3-1.2-fabric+forge+neo"
+    implementation "maven.modrinth:collective:1.21.3-7.89-fabric+forge+neo"
 }
 
 mixin {
@@ -42,7 +44,8 @@ minecraft {
         client {
             workingDirectory file('runs/client')
             ideaModule "${rootProject.name}.${project.name}.main"
-            taskName 'Client'
+            taskName 'Forge Client'
+            args '--username', 'DogIsDelicious'
             mods {
                 modClientRun {
                     source sourceSets.main
@@ -53,7 +56,7 @@ minecraft {
         server {
             workingDirectory file('runs/server')
             ideaModule "${rootProject.name}.${project.name}.main"
-            taskName 'Server'
+            taskName 'Forge Server'
             mods {
                 modServerRun {
                     source sourceSets.main
@@ -65,7 +68,7 @@ minecraft {
             workingDirectory file('runs/data')
             ideaModule "${rootProject.name}.${project.name}.main"
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            taskName 'Data'
+            taskName 'Forge Data'
             mods {
                 modDataRun {
                     source sourceSets.main

@@ -16,6 +16,7 @@ import com.msg.end_less.EndLessConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
@@ -31,11 +32,7 @@ public class EndLessSaveAndLoader extends SavedData {
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag listTag = new ListTag();
         for (BlockPos pos : openEndPortal) {
-            CompoundTag posTag = new CompoundTag();
-            posTag.putInt("x", pos.getX());
-            posTag.putInt("y", pos.getY());
-            posTag.putInt("z", pos.getZ());
-            listTag.add(posTag);
+            listTag.add(new IntArrayTag(new int[]{pos.getX(), pos.getY(), pos.getZ()}));
         }
         tag.put("openEndPortal", listTag);
         return tag;
@@ -44,13 +41,22 @@ public class EndLessSaveAndLoader extends SavedData {
     public static EndLessSaveAndLoader createFromNbt(CompoundTag tag, HolderLookup.Provider registries) {
         EndLessSaveAndLoader state = new EndLessSaveAndLoader();
 
-        ListTag listTag = tag.getList("openEndPortal", Tag.TAG_COMPOUND);
-        for (Tag t : listTag) {
-            CompoundTag posTag = (CompoundTag) t;
-            int x = posTag.getInt("x");
-            int y = posTag.getInt("y");
-            int z = posTag.getInt("z");
-            state.openEndPortal.add(new BlockPos(x, y, z));
+        ListTag listTag = tag.getList("openEndPortal", Tag.TAG_INT_ARRAY);
+
+        if (listTag.isEmpty()) { // to the dected the old saving structure and update it to new structure.
+            EndLessConstants.LOG.info("Detected old opened portals save file, updating!");
+
+            listTag = tag.getList("openEndPortal", Tag.TAG_COMPOUND);
+            for (Tag t : listTag) {
+                CompoundTag posTag = (CompoundTag) t;
+                state.openEndPortal.add(new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z")));
+            }
+        }
+        else {
+            for (Tag t : listTag) {
+                int[] pos = (((IntArrayTag) t).getAsIntArray());
+                state.openEndPortal.add(new BlockPos(pos[0], pos[1], pos[2]));
+            }
         }
 
         return state;
@@ -68,7 +74,6 @@ public class EndLessSaveAndLoader extends SavedData {
 
     public static EndLessSaveAndLoader getServerState(MinecraftServer server) {
         ServerLevel level = server.getLevel(Level.OVERWORLD);
-        assert level != null;
         EndLessSaveAndLoader state = level.getDataStorage().computeIfAbsent(type, EndLessConstants.ID);
         state.setDirty();
         return state;

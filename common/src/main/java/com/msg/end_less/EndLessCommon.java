@@ -43,6 +43,5 @@ public class EndLessCommon {
 
     public static void init() {
         EndLessConstants.LOG.info("Mod {} is running on {} in {} environment!", EndLessConstants.NAME, Services.PLATFORM.getPlatformName(), Services.PLATFORM.getEnvironmentName());
-    
 	}
 }

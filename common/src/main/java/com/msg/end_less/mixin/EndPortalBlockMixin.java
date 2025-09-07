@@ -120,8 +120,7 @@ public class EndPortalBlockMixin implements Portal {
         }
 
         NewEndPlatform.createPlatform(newEnd, new BlockPos(0, 48, 0));
-        BlockPos fallback = entity.adjustSpawnLocation(newEnd, newEnd.getSharedSpawnPos());
-        return transitionTo(newEnd, fallback.getBottomCenter(), entity);
+        return transitionTo(newEnd,  new Vec3(0, 55, 0), entity);
     }
 
     private static BlockPos findClosestPortalNear(Entity entity, List<BlockPos> portals, double maxDistance) {
