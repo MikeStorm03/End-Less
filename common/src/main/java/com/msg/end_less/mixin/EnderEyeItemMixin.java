@@ -37,7 +37,7 @@ public class EnderEyeItemMixin {
         EndLessSaveAndLoader openPortals = EndLessSaveAndLoader.getServerState(world.getServer());
         for (int i = -2; i < 3; i++) {
             for (int j = -2; j < 3; j++) {
-                if (i > -2  && i < 2 && j > -2 && j < 2 || i == j && Math.abs(i) == 2){
+                if ((i > -2  && i < 2 && j > -2 && j < 2) || (i == j && Math.abs(i) == 2)){
                     continue;
                 } else {
                     BlockPos checkAtPos = blockPos.offset(i, 0, j);
