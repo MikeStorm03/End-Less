@@ -12,6 +12,7 @@ import com.msg.end_less.EndLessConstants;
 import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -32,7 +33,7 @@ public class DragonFightMixin {
     private void firstDragonKilled(EnderDragon enderDragon, CallbackInfo ci){
         if (!this.previouslyKilled){
             EndLessConstants.LOG.info("Trying to spawn the portal");
-            place_portal(level.getServer().getLevel(level.OVERWORLD));
+            place_portal(level.getServer().getLevel(Level.OVERWORLD));
         }
     }
 

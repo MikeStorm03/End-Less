@@ -7,7 +7,9 @@
   "mixins": [
     "EnderEyeItemMixin",
     "EndPortalBlockMixin",
-    "DragonFightMixin"
+    "DragonFightMixin",
+    "StructurePieceInvoker",
+    "PortalRoomMixin"
   ],
   "client": [],
   "server": [],
