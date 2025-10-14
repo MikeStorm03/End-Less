@@ -7,12 +7,6 @@ base {
     archivesName = "${mod_name}-forge-${minecraft_version}"
 }
 
-dependencies {
-    implementation "maven.modrinth:en-sityfuntion:0.1.2+1.21-forge"
-    implementation "maven.modrinth:hide-experimental-warning:1.21.5-1.2-fabric+forge+neo"
-    implementation "maven.modrinth:collective:1.21.5-8.3-fabric+forge+neo"
-}
-
 mixin {
     config("${mod_id}.mixins.json")
     config("${mod_id}.forge.mixins.json")
@@ -87,6 +81,10 @@ dependencies {
 
     // Forge's hack fix
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
+
+    implementation "maven.modrinth:en-sityfunction:0.1.2+1.21-forge"
+    implementation "maven.modrinth:hide-experimental-warning:1.21.5-1.2-fabric+forge+neo"
+    implementation "maven.modrinth:collective:1.21.5-8.3-fabric+forge+neo"
 }
 
 
