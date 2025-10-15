@@ -120,7 +120,7 @@ public class EndPortalBlockMixin implements Portal {
         }
 
         NewEndPlatform.createPlatform(newEnd, new BlockPos(0, 48, 0));
-        return transitionTo(newEnd, entity.adjustSpawnLocation(newEnd, new BlockPos(0, 55, 0)).getBottomCenter(), entity);
+        return transitionTo(newEnd, entity.adjustSpawnLocation(newEnd, newEnd.getRespawnData().pos()).getBottomCenter(), entity);
     }
 
     private static BlockPos findClosestPortalNear(Entity entity, List<BlockPos> portals, double maxDistance) {
@@ -202,6 +202,6 @@ public class EndPortalBlockMixin implements Portal {
         ServerLevel overworld = level.getServer().getLevel(Level.OVERWORLD);
         if (overworld == null) return null;
 
-        return transitionTo(overworld, entity.adjustSpawnLocation(overworld, new BlockPos(0, 80, 0)).getBottomCenter(), entity);
+        return transitionTo(overworld, entity.adjustSpawnLocation(overworld, overworld.getRespawnData().pos()).getBottomCenter(), entity);
     }
 }
