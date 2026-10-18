@@ -44,7 +44,6 @@ public class NewEndPlatform {
      * @param level        The current world/dimension.
      * @param pos          The block position.
      * @param dropblock    If true, drop block when break block.
-     * @return The closest portal position, or null if none is close enough.
      */
     public static void placePortal(ServerLevel level, BlockPos pos, boolean dropblock) {
         BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
@@ -95,7 +94,7 @@ public class NewEndPlatform {
     /**
      * Finds the closest portal within a max distance.
      *
-     * @param entity       The entity position to compare.
+     * @param pos          The position where it is checking.
      * @param portals      A list of portal positions.
      * @param maxDistance  The max distance to consider.
      * @return The closest portal position, or null if none is close enough.
