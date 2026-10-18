@@ -1,3 +1,6 @@
+### 1.1.0
+- Fix duplicate save portal when open the portal at the same position again and again.
+- When you open the portal from the overworld it will pre-generate the portal in the new_end without block drop. After the first pre-generate, block will always drop.
 ### 1.0.0
 - Change opened portal saving structure.
 - Fixed saving portal offset.

@@ -121,7 +121,7 @@ public class EndPortalBlockMixin {
         level = level.getServer().getLevel(Level.OVERWORLD);
         if (level == null) return null;
 
-        BlockPos nearest = findClosestPortalNear(entity, EndLessSaveAndLoader.getServerState(level.getServer()).openEndPortal, 5);
+        BlockPos nearest = NewEndPlatform.findClosestPortalNear(entity.position(), EndLessSaveAndLoader.getServerState(level.getServer()).openEndPortal, 5);
         if (nearest != null) {
             BlockPos safe = findSafeTeleportSpot(level, nearest);
             if (safe != null) {
@@ -140,7 +140,7 @@ public class EndPortalBlockMixin {
                 if (level.getBlockState(blockPos.offset(i, 0, j)).is(Blocks.END_PORTAL)) return;
             }
         }
-        NewEndPlatform.placePortal(level, blockPos);
+        NewEndPlatform.placePortal(level, blockPos, true);
     }
 
     /**
@@ -153,39 +153,18 @@ public class EndPortalBlockMixin {
     private static DimensionTransition teleportToNewEnd(ServerLevel level, Entity entity) {
         ServerLevel newEnd = level.getServer().getLevel(EndLessCommon.NEW_END);
 
-        BlockPos nearest = findClosestPortalNear(entity, EndLessSaveAndLoader.getServerState(level.getServer()).openEndPortal, 5);
+        BlockPos nearest = NewEndPlatform.findClosestPortalNear(entity.position(), EndLessSaveAndLoader.getServerState(level.getServer()).openEndPortal, 5);
         if (nearest != null) {
-            NewEndPlatform.createPlatform(newEnd, new BlockPos(nearest.getX(), 48, nearest.getZ()));
+            NewEndPlatform.createPlatform(newEnd, new BlockPos(nearest.getX(), 48, nearest.getZ()), true);
             return transitionTo(newEnd, new Vec3(entity.getX(), 55, entity.getZ()), entity);
         }
 
-        NewEndPlatform.createPlatform(newEnd, new BlockPos(0, 48, 0));
+        NewEndPlatform.createPlatform(newEnd, new BlockPos(0, 48, 0), true);
         BlockPos fallback = entity.adjustSpawnLocation(newEnd, newEnd.getSharedSpawnPos());
         return transitionTo(newEnd, fallback.getBottomCenter(), entity);
     }
 
-    /**
-     * Finds the closest portal within a max distance.
-     *
-     * @param entity       The entity position to compare.
-     * @param portals      A list of portal positions.
-     * @param maxDistance  The max distance to consider.
-     * @return The closest portal position, or null if none is close enough.
-     */
-    private static BlockPos findClosestPortalNear(Entity entity, List<BlockPos> portals, double maxDistance) {
-        double maxSqr = maxDistance * maxDistance;
-        double x = entity.getX(), z = entity.getZ();
 
-        for (BlockPos pos : portals) {
-            double dx = pos.getX() - x;
-            double dz = pos.getZ() - z;
-            if ((dx * dx + dz * dz) < maxSqr) {
-                return pos;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Attempts to find a safe location near a given center position to teleport an entity to.

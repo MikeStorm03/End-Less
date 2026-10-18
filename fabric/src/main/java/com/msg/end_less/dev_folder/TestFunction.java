@@ -53,7 +53,7 @@ public class TestFunction {
                                                             .then(Commands.argument("position", BlockPosArgument.blockPos())
                                                                 .executes(context -> {
                                                                     BlockPos blockPos = BlockPosArgument.getBlockPos(context, "position");
-                                                                    NewEndPlatform.createPlatform(context.getSource().getLevel(), blockPos);
+                                                                    NewEndPlatform.createPlatform(context.getSource().getLevel(), blockPos, false);
                                                                     return 1;
                                                                 })));
             });

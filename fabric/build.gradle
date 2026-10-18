@@ -12,7 +12,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    modImplementation "maven.modrinth:en-sityfuntion:0.1.2+1.21-fabric"
+    modImplementation "maven.modrinth:en-sityfunction:0.1.2+1.21-fabric"
     modLocalRuntime "maven.modrinth:modmenu:11.0.3"
 }
 

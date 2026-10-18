@@ -8,7 +8,7 @@
 
 package com.msg.end_less.features;
 
-import com.mojang.serialization.Codec;
+import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,37 +17,36 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EndPortalFrameBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.phys.Vec3;
 
-public class NewEndPlatform extends Feature<NoneFeatureConfiguration> {
-    public NewEndPlatform(Codec<NoneFeatureConfiguration> codec) {
-        super(codec);
-    }
+public class NewEndPlatform {
 
-    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-        createPlatform(context.level(), context.origin());
-        return true;
-    }
-
-    public static void createPlatform(ServerLevelAccessor level, BlockPos pos) {
+    public static void createPlatform(ServerLevelAccessor level, BlockPos pos, boolean dropblock) {
         BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
+        
         // A big air box with obby platform
         BlockPos blockPos;
         for(int i = 1; i < 10; ++i) {
             for(int j = -2; j < 3; ++j) {
                 for(int k = -2; k < 3; ++k) {
-                blockPos = mutableBlockPos.set(pos).move(j, i, k);
-                placeBlock(level, blockPos, (i == 6 ? Blocks.OBSIDIAN : Blocks.AIR).defaultBlockState());
+                    blockPos = mutableBlockPos.set(pos).move(j, i, k);
+                    placeBlock(level, blockPos, (i == 6 ? Blocks.OBSIDIAN : Blocks.AIR).defaultBlockState(), dropblock);
                 }
             }
         }
         // End Portal
-        placePortal((ServerLevel)level, pos);
+        placePortal((ServerLevel)level, pos, dropblock);
     }
 
-    public static void placePortal(ServerLevel level, BlockPos pos) {
+    /**
+     * Place the End Portal with an air box above it
+     *
+     * @param level        The current world/dimension.
+     * @param pos          The block position.
+     * @param dropblock    If true, drop block when break block.
+     * @return The closest portal position, or null if none is close enough.
+     */
+    public static void placePortal(ServerLevel level, BlockPos pos, boolean dropblock) {
         BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
         BlockPos blockPos;
         for (int i = -2; i < 3; i++) {
@@ -73,14 +72,45 @@ public class NewEndPlatform extends Feature<NoneFeatureConfiguration> {
                     }
                 }
 
-                placeBlock(level, blockPos, state);
+                placeBlock(level, blockPos, state, dropblock);
             }
         }
     }
 
-    private static void placeBlock(ServerLevelAccessor level, BlockPos blockPos, BlockState blockState) {
+    /**
+     * Destroy and replace the block at the position.
+     *
+     * @param level        The current world/dimension.
+     * @param blockPos     The block position.
+     * @param blockState   The blockState at the current position.
+     * @param dropblock    If true, drop block when break block.
+     */
+    private static void placeBlock(ServerLevelAccessor level, BlockPos blockPos, BlockState blockState, boolean dropblock) {
         if (!level.getBlockState(blockPos).is(blockState.getBlock())) {
+            level.destroyBlock(blockPos, dropblock);
             level.setBlock(blockPos, blockState, 3);
         }
+    }
+
+    /**
+     * Finds the closest portal within a max distance.
+     *
+     * @param entity       The entity position to compare.
+     * @param portals      A list of portal positions.
+     * @param maxDistance  The max distance to consider.
+     * @return The closest portal position, or null if none is close enough.
+     */
+    public static BlockPos findClosestPortalNear(Vec3 pos, List<BlockPos> portals, double maxDistance) {
+        double maxSqr = maxDistance * maxDistance;
+
+        for (BlockPos portalPos : portals) {
+            double dx = portalPos.getX() - pos.x;
+            double dz = portalPos.getZ() - pos.z;
+            if ((dx * dx + dz * dz) < maxSqr) {
+                return portalPos;
+            }
+        }
+
+        return null;
     }
 }

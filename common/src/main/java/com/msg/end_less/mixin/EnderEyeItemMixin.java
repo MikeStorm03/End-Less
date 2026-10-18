@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.msg.end_less.EndLessCommon;
 import com.msg.end_less.features.EndLessSaveAndLoader;
+import com.msg.end_less.features.NewEndPlatform;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -35,16 +37,19 @@ public class EnderEyeItemMixin {
         Level world = context.getLevel();
         BlockPos blockPos = context.getClickedPos();
         EndLessSaveAndLoader openPortals = EndLessSaveAndLoader.getServerState(world.getServer());
-        for (int i = -2; i < 3; i++) {
-            for (int j = -2; j < 3; j++) {
-                if ((i > -2  && i < 2 && j > -2 && j < 2) || (i == j && Math.abs(i) == 2)){
-                    continue;
-                } else {
-                    BlockPos checkAtPos = blockPos.offset(i, 0, j);
+        if (openPortals.openEndPortal.isEmpty() || NewEndPlatform.findClosestPortalNear(blockPos.getCenter(), openPortals.openEndPortal, 7) != null) {
+            for (int i = -2; i < 3; i++) {
+                for (int j = -2; j < 3; j++) {
+                    if ((i > -2  && i < 2 && j > -2 && j < 2) || (i == j && Math.abs(i) == 2)){
+                        continue;
+                    } else {
+                        BlockPos checkAtPos = blockPos.offset(i, 0, j);
 
-                    if (checkSquare(world, checkAtPos)) {
-                        openPortals.openEndPortal.add(checkAtPos);
-                        return;
+                        if (checkSquare(world, checkAtPos)) {
+                            openPortals.openEndPortal.add(checkAtPos);
+                            NewEndPlatform.createPlatform(world.getServer().getLevel(EndLessCommon.NEW_END), checkAtPos.atY(48), false);
+                            return;
+                        }
                     }
                 }
             }

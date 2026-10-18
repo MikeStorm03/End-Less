@@ -6,6 +6,10 @@ bin
 .classpath
 .project
 
+# icon
+*.ini
+*.ico
+
 # idea
 out
 *.ipr

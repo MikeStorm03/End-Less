@@ -8,7 +8,7 @@ base {
 }
 
 dependencies {
-    implementation "maven.modrinth:en-sityfuntion:0.1.2+1.21-forge"
+    implementation "maven.modrinth:en-sityfunction:0.1.2+1.21-forge"
 }
 
 mixin {
